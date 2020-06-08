@@ -1,0 +1,89 @@
+---
+title: 'Russian comparative function words'
+author: "Кирилл Коновалов, Пётр Фильченков"
+date: "12/06/2020"
+output:
+  html_notebook: default
+  html_document: default
+---
+
+Предмет исследования: распределение ...   
+Материал исследования: примеры из Национального Корпуса Русского Языка.
+
+Факторы, которые рассматриваются как возможно влияющие на выбор слова (независимые переменнные):
+
+- регистр речи (письменный, устный);   
+- жанр текста (художественный, нехудожественный);   
+- часть речи слова, стоящая слева от анализируемого;  
+- часть речи слова, стоящая справа от анализируемого;   
+- время создания текста (по десятилетиям). 
+
+Нулевой гипотезой является предположение о том, что ... 
+
+В результате получено ... .  ... . Данные представлены в файле ___.csv и проиллюстрированы в графиках.
+
+```{r}
+install.packages("tidyverse")
+library("tidyverse")
+```
+
+```{r}
+urlfile="https://raw.githubusercontent.com/a-la-r/data/master/df_250_wr.csv"
+
+data<-read.csv(url(urlfile), sep = ";", encoding = "UTF-8")
+```
+
+```{r}
+head(data)
+```
+
+```{r}
+data %>%
+  ggplot(aes(Sphere, fill = Sphere)) + 
+  geom_bar() +
+  theme_bw() + 
+  facet_wrap(~Center) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+```
+
+```{r}
+data %>%
+  ggplot(aes(Type, fill = Type)) + 
+  geom_bar() +
+  theme_bw() +
+  facet_wrap(~Center) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+```
+
+```{r}
+data %>%
+  ggplot(aes(Created, fill = Created)) + 
+  geom_bar() +
+  theme_bw() +
+  facet_wrap(~Center) 
+ # theme(axis.text.x=element_blank(),
+       # axis.ticks.x=element_blank())
+```
+
+```{r}
+data %>%
+  ggplot(aes(Left_context_POS, fill = Left_context_POS)) + 
+  geom_bar() +
+  theme_bw() +
+  facet_wrap(~Center) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+```
+
+```{r}
+data %>%
+  ggplot(aes(Right_context_POS, fill = Right_context_POS)) + 
+  geom_bar() +
+  theme_bw() +
+  facet_wrap(~Center) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+```
+
