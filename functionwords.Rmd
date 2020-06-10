@@ -22,8 +22,17 @@ output:
 
 В результате получено ... .  ... . Данные представлены в файле ___.csv и проиллюстрированы в графиках.
 
+
+Hypotheses to be tested:
+"будто", "словно", "а-ля", "аки", "подобно"
+
+"будто" and "словно" occur more often in bellse-lettres texts (binominal test for belles-lettres subcorpus, where "будто" is 1, and other words are 0. binominal test for belles-lettres subcorpus, where "словно" is 1, and other words are 0. )
+"как", "подобно" have even distribution in texts of all genres (just look at the data plot)
+"а-ля" and "аки" tend to occur more often in the past ()
+
+
 ```{r}
-#install.packages("tidyverse")
+install.packages("tidyverse")
 library(tidyverse)
 library(dplyr)
 ```
@@ -33,7 +42,7 @@ urlfile="https://raw.githubusercontent.com/a-la-r/data/master/df_250_wr.csv"
 data<-read.csv(url(urlfile), sep = ";", encoding='UTF-8')
 
 cols <- c('Left.context', 'Center', 'Right.context', 'Created', 'Sphere', 'Type', 'Full.context', 'Left_context_POS', 'Right_context_POS')
-data[cols] <- lapply(data[cols], factor)
+#data[cols] <- lapply(data[cols], factor)
 ```
 
 ```{r}
