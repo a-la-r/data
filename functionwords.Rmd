@@ -1,6 +1,6 @@
 ---
 title: 'Russian comparative function words'
-author: "Кирилл Коновалов, Пётр Фильченков"
+author: "Kirill Konovalov, Petr Filchenkov"
 date: "12/06/2020"
 output:
   html_notebook: default
@@ -20,34 +20,31 @@ output:
 
 Нулевой гипотезой является предположение о том, что ... 
 
-В результате получено ... .  ... . Данные представлены в файле ___.csv и проиллюстрированы в графиках.
 
+
+В результате получено ... .  ... . Данные представлены в файле ___.csv и проиллюстрированы в графиках.
 
 Hypotheses to be tested:
 "будто", "словно", "а-ля", "аки", "подобно"
-
 "будто" and "словно" occur more often in bellse-lettres texts (binominal test for belles-lettres subcorpus, where "будто" is 1, and other words are 0. binominal test for belles-lettres subcorpus, where "словно" is 1, and other words are 0. )
 "как", "подобно" have even distribution in texts of all genres (just look at the data plot)
 "а-ля" and "аки" tend to occur more often in the past ()
 
-
 ```{r}
-install.packages("tidyverse")
-library(tidyverse)
-library(dplyr)
+#install.packages("tidyverse")
+library("tidyverse")
 ```
 
 ```{r}
 urlfile="https://raw.githubusercontent.com/a-la-r/data/master/df_250_wr.csv"
-data<-read.csv(url(urlfile), sep = ";", encoding='UTF-8')
-
-cols <- c('Left.context', 'Center', 'Right.context', 'Created', 'Sphere', 'Type', 'Full.context', 'Left_context_POS', 'Right_context_POS')
-#data[cols] <- lapply(data[cols], factor)
+data<-read.csv(url(urlfile), sep = ";")
 ```
 
 ```{r}
 head(data)
 ```
+
+###Визуализация данных
 
 ```{r}
 data %>%
@@ -102,23 +99,73 @@ data %>%
 ###Предобработка датасета
 
 ```{r}
+cols <- c('Left.context', 'Center', 'Right.context', 'Created', 'Sphere', 'Type', 'Full.context', 'Left_context_POS', 'Right_context_POS')
+data[cols] <- lapply(data[cols], factor)
+
 data %>% filter(Center=='как' | Center=='а-ля') -> kak_a_la
 data %>% filter(Center=='как' | Center=='аки') -> kak_aki
 data %>% filter(Center=='как' | Center=='подобно') -> kak_podobno
 data %>% filter(Center=='как' | Center=='словно') -> kak_slovno
 data %>% filter(Center=='как' | Center=='будто') -> kak_budto
+```
 
+###Биномиальные тесты
+####Sphere
+```{r}
+budto_slovno <- data
+budto_slovno$Center <- gsub("будто", 1, budto_slovno$Center)
+budto_slovno$Center <- gsub("словно", 1, budto_slovno$Center)
+budto_slovno$Center <- gsub("аки", 0, budto_slovno$Center)
+budto_slovno$Center <- gsub("а-ля", 0, budto_slovno$Center)
+budto_slovno$Center <- gsub("как", 0, budto_slovno$Center)
+budto_slovno$Center <- gsub("подобно", 0, budto_slovno$Center)
+
+belles_lettres <- budto_slovno[budto_slovno$Sphere=="художественная",]
+
+total <- nrow(belles_lettres)
+nbudto_slovno <- nrow(belles_lettres[belles_lettres$Center==1,]) # number of successes
+
+binom.test(nbudto_slovno, total)
+```
+####Type
+```{r}
+belles_lettres2 <- budto_slovno[budto_slovno$Type=="художественный",]
+
+total <- nrow(belles_lettres2)
+nbudto_slovno <- nrow(belles_lettres2[belles_lettres2$Center==1,]) # number of successes
+
+binom.test(nbudto_slovno, total)
+```
+
+####"Аки" in the past 
+
+
+###Хи-квадрат
+
+```{r}
+tab <- table(data$Center, data$Created)
+tab
+
+prop.table(tab) * 100 # in %
+```
+
+```{r}
+chisq.test(data$Center, data$Created)
 ```
 
 ###Логистическая регрессия
 
 ```{r}
-fit1 <- glm(Center ~ Sphere + Type + Created + Right_context_POS + Left_context_POS, data = train_kak_a_la, family = "binomial")
+fit1 <- glm(Center ~ Sphere + Type + Created + Right_context_POS + Left_context_POS, data = kak_a_la, family = "binomial")
 summary(fit1)
+```
+```{r}
+Sphere+ Type + Created + Right_context_POS + Left_context_POS
 ```
 
 ```{r}
-fit2 <- glm(Center ~ Sphere + Type + Created + Right_context_POS + Left_context_POS, data = train_kak_aki, family = "binomial")
+fit2 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS
+, data = kak_aki, family = "binomial")
 summary(fit2)
 ```
 
