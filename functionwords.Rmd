@@ -44,6 +44,10 @@ data<-read.csv(url(urlfile), sep = ";")
 head(data)
 ```
 
+```{r}
+summary(data)
+```
+
 ###Визуализация данных
 
 ```{r}
@@ -139,24 +143,37 @@ binom.test(nbudto_slovno, total)
 
 ####"Аки" in the past 
 
+```{r}
+
+```
+
 
 ###Хи-квадрат
 
 ```{r}
-tab <- table(data$Center, data$Created)
+#tab <- table(data$Center, data$Created)
+#tab
+
+data <- data %>% mutate(Century = ifelse(Created >= 1900, "20 век", "до 20 века"))
+
+tab <- table(data$Center, data$Century)
 tab
 
-prop.table(tab) * 100 # in %
-```
+prop.table(tab) * 100
 
-```{r}
-chisq.test(data$Center, data$Created)
+chisq.test(data$Center, data$Century)
+res <- chisq.test(data$Center, data$Century)
+
+res$expected
+res$observed
+
+sum((res$expected - res$observed) ** 2 / res$expected)
 ```
 
 ###Логистическая регрессия
 
 ```{r}
-fit1 <- glm(Center ~ Sphere + Type + Created + Right_context_POS + Left_context_POS, data = kak_a_la, family = "binomial")
+fit1 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS, data = kak_a_la, family = "binomial")
 summary(fit1)
 ```
 ```{r}
@@ -170,16 +187,16 @@ summary(fit2)
 ```
 
 ```{r}
-fit3 <- glm(Center ~ Sphere + Type + Created + Right_context_POS + Left_context_POS, data = train_kak_podobno, family = "binomial")
+fit3 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS, data = kak_podobno, family = "binomial")
 summary(fit3)
 ```
 
 ```{r}
-fit4 <- glm(Center ~ Sphere + Type + Created + Right_context_POS + Left_context_POS, data = train_kak_slovno, family = "binomial")
+fit4 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS, data = kak_slovno, family = "binomial")
 summary(fit4)
 ```
 
 ```{r}
-fit5 <- glm(Center ~ Sphere + Type + Created + Right_context_POS + Left_context_POS, data = train_kak_budto, family = "binomial")
+fit5 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS, data = kak_budto, family = "binomial")
 summary(fit5)
 ```
