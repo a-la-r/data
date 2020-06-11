@@ -28,16 +28,16 @@ Hypotheses to be tested:
 "будто", "словно", "а-ля", "аки", "подобно"
 "будто" and "словно" occur more often in bellse-lettres texts (binominal test for belles-lettres subcorpus, where "будто" is 1, and other words are 0. binominal test for belles-lettres subcorpus, where "словно" is 1, and other words are 0. )
 "как", "подобно" have even distribution in texts of all genres (just look at the data plot)
-"а-ля" and "аки" tend to occur more often in the past ()
+"а-ля" tend to occur more often in the past ()
 
 ```{r}
 #install.packages("tidyverse")
-library("tidyverse")
+library(tidyverse)
 ```
 
 ```{r}
 urlfile="https://raw.githubusercontent.com/a-la-r/data/master/df_250_wr.csv"
-data<-read.csv(url(urlfile), sep = ";")
+data<-read.csv(url(urlfile), sep = ";", encoding='UTF-8')
 ```
 
 ```{r}
@@ -48,7 +48,7 @@ head(data)
 summary(data)
 ```
 
-###Визуализация данных
+###Data Visualization
 
 ```{r}
 data %>%
@@ -100,11 +100,14 @@ data %>%
         axis.ticks.x=element_blank())
 ```
 
-###Предобработка датасета
+###Preprocessing
 
 ```{r}
-cols <- c('Left.context', 'Center', 'Right.context', 'Created', 'Sphere', 'Type', 'Full.context', 'Left_context_POS', 'Right_context_POS')
+cols <- c('Left.context', 'Center', 'Right.context', 'Sphere', 'Type', 'Full.context', 'Left_context_POS', 'Right_context_POS')
 data[cols] <- lapply(data[cols], factor)
+
+sapply(data, class)
+
 
 data %>% filter(Center=='как' | Center=='а-ля') -> kak_a_la
 data %>% filter(Center=='как' | Center=='аки') -> kak_aki
@@ -113,7 +116,7 @@ data %>% filter(Center=='как' | Center=='словно') -> kak_slovno
 data %>% filter(Center=='как' | Center=='будто') -> kak_budto
 ```
 
-###Биномиальные тесты
+###Binomial tests
 ####Sphere
 ```{r}
 budto_slovno <- data
@@ -145,12 +148,12 @@ binom.test(nbudto_slovno, total)
 
 ```{r}
 aki <- data
-aki$Center <- gsub("будто", 0, budto_slovno$Center)
-aki$Center <- gsub("словно", 0, budto_slovno$Center)
-aki$Center <- gsub("аки", 1, budto_slovno$Center)
-aki$Center <- gsub("а-ля", 0, budto_slovno$Center)
-aki$Center <- gsub("как", 0, budto_slovno$Center)
-aki$Center <- gsub("подобно", 0, budto_slovno$Center)
+aki$Center <- gsub("будто", 0, aki$Center)
+aki$Center <- gsub("словно", 0, aki$Center)
+aki$Center <- gsub("аки", 1, aki$Center)
+aki$Center <- gsub("а-ля", 0, aki$Center)
+aki$Center <- gsub("как", 0, aki$Center)
+aki$Center <- gsub("подобно", 0, aki$Center)
 
 old_texts <- aki[aki$Created<=1900,]
 total <- nrow(old_texts)
@@ -160,13 +163,10 @@ binom.test(naki, total)
 ```
 
 
-###Хи-квадрат
+###Chi-squared test
 
 ```{r}
-#tab <- table(data$Center, data$Created)
-#tab
-
-data <- data %>% mutate(Century = ifelse(Created >= 1900, "20 век", "до 20 века"))
+data <- data %>% mutate(Century = ifelse(Created >= 1900, "XX-XXI cent", "before XX cent."))
 
 tab <- table(data$Center, data$Century)
 tab
@@ -174,41 +174,58 @@ tab
 prop.table(tab) * 100
 
 chisq.test(data$Center, data$Century)
-res <- chisq.test(data$Center, data$Century)
 
-res$expected
-res$observed
-
-sum((res$expected - res$observed) ** 2 / res$expected)
 ```
 
-###Логистическая регрессия
+###Linear Regression
 
 ```{r}
-fit1 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS, data = kak_a_la, family = "binomial")
+
+years_distr <- t(table(data$Center, data$Created))
+years_distr <- add_rownames(as.data.frame.matrix(years_distr)) 
+colnames(years_distr) <-c("year", "ala", "aki", "budto", "kak", "podobno", "slovno")
+years_distr$year <- as.numeric(years_distr$year)
+
+years_distr
+
+fit1 <- lm(ala ~ year, data = years_distr)
 summary(fit1)
-```
-```{r}
-Sphere+ Type + Created + Right_context_POS + Left_context_POS
-```
 
-```{r}
-fit2 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS
-, data = kak_aki, family = "binomial")
+fit2 <- lm(aki ~ year, data = years_distr)
 summary(fit2)
-```
 
-```{r}
-fit3 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS, data = kak_podobno, family = "binomial")
+fit3 <- lm(budto ~ year, data = years_distr)
 summary(fit3)
-```
 
-```{r}
-fit4 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS, data = kak_slovno, family = "binomial")
+fit4 <- lm(kak ~ year, data = years_distr)
 summary(fit4)
+
+fit5 <- lm(podobno ~ year, data = years_distr)
+summary(fit5)
+
+fit6 <- lm(slovno ~ year, data = years_distr)
+summary(fit6)
+
+
+
 ```
 
 ```{r}
-fit5 <- glm(Center ~ Sphere + Type + Right_context_POS + Left_context_POS, data = kak_budto, family = "binomial")
-summary(fit5)
+p <- ggplot(data = years_distr, aes(x = year, y = kak)) + 
+  geom_point() +
+  labs(y = "'как' occurrences",
+       x = "year",
+       title = "Distribution of 'как'") +
+  geom_smooth(method=lm)
+p
+```
+
+```{r}
+p <- ggplot(data = years_distr, aes(x = year, y = ala)) + 
+  geom_point() +
+  labs(x = "year",
+       y = "'а-ля' occurrences",
+       title = "Distribution of 'а-ля'") +
+  geom_smooth(method=lm)
+p
 ```
