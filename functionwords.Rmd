@@ -144,7 +144,19 @@ binom.test(nbudto_slovno, total)
 ####"Аки" in the past 
 
 ```{r}
+aki <- data
+aki$Center <- gsub("будто", 0, budto_slovno$Center)
+aki$Center <- gsub("словно", 0, budto_slovno$Center)
+aki$Center <- gsub("аки", 1, budto_slovno$Center)
+aki$Center <- gsub("а-ля", 0, budto_slovno$Center)
+aki$Center <- gsub("как", 0, budto_slovno$Center)
+aki$Center <- gsub("подобно", 0, budto_slovno$Center)
 
+old_texts <- aki[aki$Created<=1900,]
+total <- nrow(old_texts)
+naki <- nrow(old_texts[old_texts$Center==1,]) # number of successes
+
+binom.test(naki, total)
 ```
 
 
