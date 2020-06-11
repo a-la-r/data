@@ -147,7 +147,7 @@ nbudto_slovno <- nrow(belles_lettres2[belles_lettres2$Center==1,]) # number of s
 binom.test(nbudto_slovno, total)
 ```
 
-####"Аки" in the past 
+####"Аки" in before XX
 
 ```{r}
 aki <- data
@@ -165,30 +165,82 @@ naki <- nrow(old_texts[old_texts$Center==1,]) # number of successes
 binom.test(naki, total)
 ```
 
-####Nouns after comparative words before XX
 ```{r}
-unique(data$Right_context_POS)
-
-nouns <- data
-nouns$Right_context_POS <- gsub("NOUN", 1, aki$Right_context_POS)
-nouns$Right_context_POS[nouns$Right_context_POS != 1] <- 0
-nouns
-
-old_texts <- nouns[nouns$Created<=1900,]
-total <- nrow(old_texts)
-naki <- nrow(old_texts[old_texts$Right_context_POS==1,]) 
-
-binom.test(naki, total)
-```
-####"Nouns after comparative words" in XX-XXI 
-```{r}
-new_texts <- nouns[nouns$Created>=1900,]
+new_texts <- aki[aki$Created>=1900,]
 total <- nrow(new_texts)
 naki <- nrow(new_texts[new_texts$Right_context_POS==1,]) 
 
 binom.test(naki, total)
 ```
 
+####Nouns after comparative words before XX
+```{r}
+nouns <- data
+nouns$Right_context_POS <- gsub("NOUN", 1, nouns$Right_context_POS)
+nouns$Right_context_POS[nouns$Right_context_POS != 1] <- 0
+nouns
+
+old_texts <- nouns[nouns$Created<=1900,]
+total <- nrow(old_texts)
+nnouns <- nrow(old_texts[old_texts$Right_context_POS==1,]) 
+
+binom.test(nnouns, total)
+```
+####"Nouns after comparative words" in XX-XXI 
+```{r}
+new_texts <- nouns[nouns$Created>=1900,]
+total <- nrow(new_texts)
+nnouns <- nrow(new_texts[new_texts$Right_context_POS==1,]) 
+
+binom.test(nnouns, total)
+```
+####Auxiliary words after comparative words before XX
+```{r}
+aux <- data
+aux$Right_context_POS <- gsub("AUX", 1, aux$Right_context_POS)
+aux$Right_context_POS[aux$Right_context_POS != 1] <- 0
+aux
+
+old_texts <- aux[aux$Created<=1900,]
+total <- nrow(old_texts)
+naux <- nrow(old_texts[old_texts$Right_context_POS==1,]) 
+
+binom.test(naux, total)
+```
+####Auxiliary words after comparative words in XX-XXI
+
+```{r}
+new_texts <- aux[aux$Created>=1900,]
+total <- nrow(new_texts)
+naux <- nrow(new_texts[new_texts$Right_context_POS==1,]) 
+
+binom.test(naux, total)
+```
+
+####Adjectives after comparative words before XX
+
+```{r}
+adj <- data
+adj$Right_context_POS <- gsub("ADJ", 1, adj$Right_context_POS)
+adj$Right_context_POS[adj$Right_context_POS != 1] <- 0
+adj
+
+old_texts <- adj[adj$Created<=1900,]
+total <- nrow(old_texts)
+nadj <- nrow(old_texts[old_texts$Right_context_POS==1,]) 
+
+binom.test(nadj, total)
+```
+
+####Adjectives after comparative words in XX-XXI
+
+```{r}
+new_texts <- adj[adj$Created>=1900,]
+total <- nrow(new_texts)
+nadj <- nrow(new_texts[new_texts$Right_context_POS==1,]) 
+
+binom.test(nadj, total)
+```
 
 ###Chi-squared test
 
