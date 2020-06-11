@@ -177,6 +177,7 @@ chisq.test(data$Center, data$Century)
 
 ```
 
+
 ###Linear Regression
 
 ```{r}
@@ -188,27 +189,47 @@ years_distr$year <- as.numeric(years_distr$year)
 
 years_distr
 
+```
+```{r}
 fit1 <- lm(ala ~ year, data = years_distr)
 summary(fit1)
+```
 
+```{r}
 fit2 <- lm(aki ~ year, data = years_distr)
 summary(fit2)
+```
 
+
+```{r}
 fit3 <- lm(budto ~ year, data = years_distr)
 summary(fit3)
+```
+
+
+```{r}
 
 fit4 <- lm(kak ~ year, data = years_distr)
 summary(fit4)
+```
 
+```{r}
 fit5 <- lm(podobno ~ year, data = years_distr)
 summary(fit5)
+```
 
+
+```{r}
 fit6 <- lm(slovno ~ year, data = years_distr)
 summary(fit6)
-
-
-
 ```
+
+
+
+
+
+
+
 
 ```{r}
 p <- ggplot(data = years_distr, aes(x = year, y = kak)) + 
@@ -229,3 +250,9 @@ p <- ggplot(data = years_distr, aes(x = year, y = ala)) +
   geom_smooth(method=lm)
 p
 ```
+
+
+```{r}
+data
+```
+
