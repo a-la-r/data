@@ -118,7 +118,7 @@ data %>% filter(Center=='как' | Center=='будто') -> kak_budto
 ```
 
 ###Binomial tests
-####Sphere
+####Type
 ```{r}
 budto_slovno <- data
 budto_slovno$Center <- gsub("будто", 1, budto_slovno$Center)
@@ -128,16 +128,6 @@ budto_slovno$Center <- gsub("а-ля", 0, budto_slovno$Center)
 budto_slovno$Center <- gsub("как", 0, budto_slovno$Center)
 budto_slovno$Center <- gsub("подобно", 0, budto_slovno$Center)
 
-belles_lettres <- budto_slovno[budto_slovno$Sphere=="художественная",]
-
-total <- nrow(belles_lettres)
-nbudto_slovno <- nrow(belles_lettres[belles_lettres$Center==1,]) # number of successes
-
-binom.test(nbudto_slovno, total)
-```
-
-####Type
-```{r}
 belles_lettres2 <- budto_slovno[budto_slovno$Type=="художественный",]
 
 total <- nrow(belles_lettres2)
