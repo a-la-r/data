@@ -136,13 +136,30 @@ nbudto_slovno <- nrow(belles_lettres[belles_lettres$Center==1,]) # number of suc
 binom.test(nbudto_slovno, total)
 ```
 
-
 ####Type
 ```{r}
 belles_lettres2 <- budto_slovno[budto_slovno$Type=="художественный",]
 
 total <- nrow(belles_lettres2)
 nbudto_slovno <- nrow(belles_lettres2[belles_lettres2$Center==1,]) # number of successes
+
+binom.test(nbudto_slovno, total)
+```
+
+
+```{r}
+ala_coll <- data
+ala_coll$Center <- gsub("будто", 0, ala_coll$Center)
+ala_coll$Center <- gsub("словно", 0, ala_coll$Center)
+ala_coll$Center <- gsub("аки", 0, ala_coll$Center)
+ala_coll$Center <- gsub("а-ля", 1, ala_coll$Center)
+ala_coll$Center <- gsub("как", 0, ala_coll$Center)
+ala_coll$Center <- gsub("подобно", 0, ala_coll$Center)
+
+colloquial <- ala_coll[ala_coll$Type=="разговорный",]
+
+total <- nrow(colloquial)
+nbudto_slovno <- nrow(colloquial[colloquial$Center==1,]) # number of successes
 
 binom.test(nbudto_slovno, total)
 ```
