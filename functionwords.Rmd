@@ -39,6 +39,10 @@ library(tidyverse)
 ```{r}
 urlfile="https://raw.githubusercontent.com/a-la-r/data/master/df_250_wr.csv"
 data<-read.csv(url(urlfile), sep = ";", encoding='UTF-8')
+colnames(full_data)
+
+data<- subset(data, select = c(Center, Created, Type, Left_context_POS, Right_context_POS))
+data
 ```
 
 ```{r}
@@ -51,15 +55,6 @@ summary(data)
 
 ###Data Visualization
 
-```{r}
-data %>%
-  ggplot(aes(Sphere, fill = Sphere)) + 
-  geom_bar() +
-  theme_bw() + 
-  facet_wrap(~Center) +
-  theme(axis.text.x=element_blank(),
-        axis.ticks.x=element_blank())
-```
 
 ```{r}
 data %>%
