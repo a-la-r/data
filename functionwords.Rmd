@@ -1,8 +1,9 @@
 ---
-title: 'Russian comparative function words'
+title: "Russian comparative function words"
 author: "Kirill Konovalov, Petr Filchenkov"
 date: "12/06/2020"
 output:
+  pdf_document: default
   html_notebook: default
   html_document: default
 ---
@@ -38,11 +39,8 @@ library(tidyverse)
 
 ```{r}
 urlfile="https://raw.githubusercontent.com/a-la-r/data/master/df_250_wr.csv"
-data<-read.csv(url(urlfile), sep = ";", encoding='UTF-8')
-colnames(full_data)
-
-data<- subset(data, select = c(Center, Created, Type, Left_context_POS, Right_context_POS))
-data
+full_data<-read.csv(url(urlfile), sep = ";", encoding='UTF-8')
+data<- subset(full_data, select = c(Center, Created, Type, Left_context_POS, Right_context_POS))
 ```
 
 ```{r}
@@ -99,10 +97,9 @@ data %>%
 ###Preprocessing
 
 ```{r}
-cols <- c('Left.context', 'Center', 'Right.context', 'Sphere', 'Type', 'Full.context', 'Left_context_POS', 'Right_context_POS')
+cols <- c('Center', 'Type', 'Left_context_POS', 'Right_context_POS')
 data[cols] <- lapply(data[cols], factor)
 
-sapply(data, class)
 
 
 data %>% filter(Center=='как' | Center=='а-ля') -> kak_a_la
@@ -149,7 +146,7 @@ nbudto_slovno <- nrow(colloquial[colloquial$Center==1,]) # number of successes
 binom.test(nbudto_slovno, total)
 ```
 
-####"Аки" in before XX
+####"Аки" before XX
 
 ```{r}
 aki <- data
@@ -174,6 +171,8 @@ naki <- nrow(new_texts[new_texts$Right_context_POS==1,])
 
 binom.test(naki, total)
 ```
+
+#Right Context
 
 ####Nouns after comparative words before XX
 ```{r}
@@ -244,7 +243,82 @@ nadj <- nrow(new_texts[new_texts$Right_context_POS==1,])
 binom.test(nadj, total)
 ```
 
+
+###Left context
+
+#### Comparative words after nouns before XX
+```{r}
+nouns <- data
+nouns$Left_context_POS <- gsub("NOUN", 1, nouns$Left_context_POS)
+nouns$Left_context_POS[nouns$Left_context_POS != 1] <- 0
+nouns
+
+old_texts <- nouns[nouns$Created<=1900,]
+total <- nrow(old_texts)
+nnouns <- nrow(old_texts[old_texts$Left_context_POS==1,]) 
+
+binom.test(nnouns, total)
+```
+####Comparative words after nouns in XX-XXI 
+```{r}
+new_texts <- nouns[nouns$Created>=1900,]
+total <- nrow(new_texts)
+nnouns <- nrow(new_texts[new_texts$Left_context_POS==1,]) 
+
+binom.test(nnouns, total)
+```
+####Comparative words after auxiliary words before XX
+```{r}
+aux <- data
+aux$Left_context_POS <- gsub("AUX", 1, aux$Left_context_POS)
+aux$Left_context_POS[aux$Left_context_POS != 1] <- 0
+aux
+
+old_texts <- aux[aux$Created<=1900,]
+total <- nrow(old_texts)
+naux <- nrow(old_texts[old_texts$Left_context_POS==1,]) 
+
+binom.test(naux, total)
+```
+####Comparative words after auxiliary words in XX-XXI
+
+```{r}
+new_texts <- aux[aux$Created>=1900,]
+total <- nrow(new_texts)
+naux <- nrow(new_texts[new_texts$Left_context_POS==1,]) 
+
+binom.test(naux, total)
+```
+
+####Comparative words after adjectives before XX
+
+```{r}
+adj <- data
+adj$Left_context_POS <- gsub("ADJ", 1, adj$Left_context_POS)
+adj$Left_context_POS[adj$Left_context_POS != 1] <- 0
+adj
+
+old_texts <- adj[adj$Created<=1900,]
+total <- nrow(old_texts)
+nadj <- nrow(old_texts[old_texts$Left_context_POS==1,]) 
+
+binom.test(nadj, total)
+```
+
+####Comparative words after adjectives in XX-XXI
+
+```{r}
+new_texts <- adj[adj$Created>=1900,]
+total <- nrow(new_texts)
+nadj <- nrow(new_texts[new_texts$Left_context_POS==1,]) 
+
+binom.test(nadj, total)
+```
+
+
 ###Chi-squared test
+
+Comparative words and century
 
 ```{r}
 data <- data %>% mutate(Century = ifelse(Created >= 1900, "XX-XXI cent", "before XX cent."))
@@ -252,9 +326,26 @@ data <- data %>% mutate(Century = ifelse(Created >= 1900, "XX-XXI cent", "before
 tab <- table(data$Center, data$Century)
 tab
 
-prop.table(tab) * 100
+prop.table(tab)
 
 chisq.test(data$Center, data$Century)
+```
+Comparative words and functional style
+```{r}
+
+chisq.test(data$Center, data$Type)
+
+```
+Comparative words and right context
+```{r}
+
+chisq.test(data$Center, data$Left_context_POS)
+
+```
+Comparative words and left context
+```{r}
+
+chisq.test(data$Center, data$Left_context_POS)
 
 ```
 
@@ -288,7 +379,6 @@ summary(fit3)
 
 
 ```{r}
-
 fit4 <- lm(kak ~ year, data = years_distr)
 summary(fit4)
 ```
@@ -329,15 +419,4 @@ p <- ggplot(data = years_distr, aes(x = year, y = ala)) +
        title = "Distribution of 'а-ля'") +
   geom_smooth(method=lm)
 p
-```
-
-
-```{r}
-data
-```
-
-
-```{r}
-tab <- table(data$Center, data$Left_context_POS)
-tab
 ```
