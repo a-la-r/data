@@ -94,20 +94,6 @@ data %>%
         axis.ticks.x=element_blank())
 ```
 
-###Preprocessing
-
-```{r}
-cols <- c('Center', 'Type', 'Left_context_POS', 'Right_context_POS')
-data[cols] <- lapply(data[cols], factor)
-
-
-
-data %>% filter(Center=='как' | Center=='а-ля') -> kak_a_la
-data %>% filter(Center=='как' | Center=='аки') -> kak_aki
-data %>% filter(Center=='как' | Center=='подобно') -> kak_podobno
-data %>% filter(Center=='как' | Center=='словно') -> kak_slovno
-data %>% filter(Center=='как' | Center=='будто') -> kak_budto
-```
 
 ###Binomial tests
 ####Type
@@ -179,7 +165,6 @@ binom.test(naki, total)
 nouns <- data
 nouns$Right_context_POS <- gsub("NOUN", 1, nouns$Right_context_POS)
 nouns$Right_context_POS[nouns$Right_context_POS != 1] <- 0
-nouns
 
 old_texts <- nouns[nouns$Created<=1900,]
 total <- nrow(old_texts)
@@ -200,7 +185,6 @@ binom.test(nnouns, total)
 aux <- data
 aux$Right_context_POS <- gsub("AUX", 1, aux$Right_context_POS)
 aux$Right_context_POS[aux$Right_context_POS != 1] <- 0
-aux
 
 old_texts <- aux[aux$Created<=1900,]
 total <- nrow(old_texts)
@@ -224,7 +208,6 @@ binom.test(naux, total)
 adj <- data
 adj$Right_context_POS <- gsub("ADJ", 1, adj$Right_context_POS)
 adj$Right_context_POS[adj$Right_context_POS != 1] <- 0
-adj
 
 old_texts <- adj[adj$Created<=1900,]
 total <- nrow(old_texts)
@@ -246,12 +229,11 @@ binom.test(nadj, total)
 
 ###Left context
 
-#### Comparative words after nouns before XX
+####Comparative words after nouns before XX
 ```{r}
 nouns <- data
 nouns$Left_context_POS <- gsub("NOUN", 1, nouns$Left_context_POS)
 nouns$Left_context_POS[nouns$Left_context_POS != 1] <- 0
-nouns
 
 old_texts <- nouns[nouns$Created<=1900,]
 total <- nrow(old_texts)
@@ -272,7 +254,6 @@ binom.test(nnouns, total)
 aux <- data
 aux$Left_context_POS <- gsub("AUX", 1, aux$Left_context_POS)
 aux$Left_context_POS[aux$Left_context_POS != 1] <- 0
-aux
 
 old_texts <- aux[aux$Created<=1900,]
 total <- nrow(old_texts)
@@ -296,7 +277,6 @@ binom.test(naux, total)
 adj <- data
 adj$Left_context_POS <- gsub("ADJ", 1, adj$Left_context_POS)
 adj$Left_context_POS[adj$Left_context_POS != 1] <- 0
-adj
 
 old_texts <- adj[adj$Created<=1900,]
 total <- nrow(old_texts)
@@ -324,7 +304,6 @@ Comparative words and century
 data <- data %>% mutate(Century = ifelse(Created >= 1900, "XX-XXI cent", "before XX cent."))
 
 tab <- table(data$Center, data$Century)
-tab
 
 prop.table(tab)
 
@@ -338,7 +317,6 @@ chisq.test(data$Center, data$Type)
 ```
 Comparative words and right context
 ```{r}
-
 chisq.test(data$Center, data$Left_context_POS)
 
 ```
