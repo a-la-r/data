@@ -3,11 +3,52 @@ title: "Russian comparative function words"
 author: "Kirill Konovalov, Petr Filchenkov"
 date: "12/06/2020"
 output:
-  pdf_document: default
-  html_notebook: default
   html_document: default
+  html_notebook: default
+  pdf_document: default
 ---
+Hypotheses
 
+The aim of this research is to analyze the representation of such Russian comparative function words as “будто”, “словно”, “а-ля”, “аки”, “как”, “подобно” in the Russian National Corpus.
+
+We have several hypotheses to be tested. Some of them are based on the idea that each of these words occurs in texts of a specific genre: 
+
+1) Such conjunctions as “словно”, “аки” and “подобно” are supposed to occur mostly in belles-lettres texts;
+
+2) “как” and “будто” seem to be stylistically neutral and should have even distribution in texts of all genres;
+
+3) “а-ля” is expected to occur in the texts of colloquial style.
+
+The other group of hypotheses is devoted to the date of the texts:
+
+1) We believe that the usage of all comparative function words in texts depends on the date of the text. We expect “аки”, “словно” and “подобно”  to appear in the texts written earlier than the XX century more often than other words. “как”, “а-ля” and “будто”  are supposed to occur more often in the XX-XXI centuries;
+
+2) There is a correlation between the historical period when the text was written and the usage of a particular part of speech after the comparative words.
+
+Research design
+
+To test the hypotheses we need such statistical information regarding the comparative words as the style of the text where they occur, the date, and the next word part-of-speech. In terms of statistics, the null hypothesis runs as follows:
+
+the usage of the words under consideration does not correlate with the style or date;
+
+the usage of a particular part of speech after the comparative words does not correlate with the historical period when the text was written
+
+
+As for statistical tools, we will use:
+
+- exploratory data analysis to observe the general statistical information regarding the data;
+
+- the binomial test to check the assumptions regarding the usage of the words  “словно”, “аки” and “подобно” in belles-lettres texts, the usage of the words 'как' and 'будто' in all styles and the usage of “а-ля” in the texts of colloquial style;
+
+- the binomial test to compare the probabilities of different part-of-speech usage in the context of comparative words in different historical periods;
+
+- the chi-squared test to see whether there is a statistically significant correlation between the usage of a particular comparative function word and the date when the text was written, the usage of comparative words and left (or right) context or functional style ; 
+
+- the logistic regression model to determine how the particular year and each comparative word frequency are correlated
+
+Data collection method
+
+The data for this research is based on the Russian National Corpus that includes several smaller corpora. We collected the information about the words of the study from the written corpus. The documents were downloaded as xlsx files and preprocessed. We used python to randomly pick 250 words from each document and combined them in one csv dataset. Then we deleted the unnecessary columns and analysed left and right context words and added POS tags for them. Moreover, since there were so many variables in columns “Type”, “Created”, “Left_context_POS” and “Right_context_POS”, we decided to decrease their number. For the “Type” column we divided the genres of the documents into 5 groups of Russian functional styles: scientific, official, publicistic, belles-lettres, and colloquial. The dates from the “Created” column were organized into decades. The number of part of speech tags was also decreased from 24 to 10 by combining some of them into groups. 
 
 ```{r}
 #install.packages("tidyverse")
@@ -20,13 +61,32 @@ full_data<-read.csv(url(urlfile), sep = ";", encoding='UTF-8')
 data<- subset(full_data, select = c(Center, Created, Type, Left_context_POS, Right_context_POS))
 ```
 
+
+Let’s look at the contents of the dataset. It has the following columns: 
+Center - the analyzed word
+Created - year of creation of the source document
+Type - functional style of the Russian language
+Left_context_POS - part of speech of the first word to the left of the analyzed one 
+Right_context_POS - part of speech of the first word to the right of the analyzed one
+
+
 ```{r}
 head(data)
 ```
 
+ Exploratory data analysis, descriptive statistics and visualization
+ 
+In this section, we are going to look at some statistics and several graphs to get a better understanding of the data and its distribution.
+
+
 ```{r}
 summary(data)
 ```
+
+From this summary, we can conclude that all the texts are distributed between the following years: 1700 and 2017, the median year is 1912. Later, in some experiments, we will divide the year distribution into 2 halves. The majority of texts belong to publicistic and belles-lettres style. Nouns, auxiliary words, verbs, and adjectives occur more often in the context of the comparative words. 
+
+
+
 
 ###Data Visualization
 
@@ -40,6 +100,9 @@ data %>%
   theme(axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
 ```
+In these plots we can see that the distribution of the analyzed words according to the functional styles has some similarities as well as differences. The most used styles among the words are belles-lettres and publicistic. The least used are official and scientific. However, the proportions of the styles in each word vary. The word “а-ля” is most often used in publicistic documents and a bit less in belles-lettres texts. There are very few occurrences of it in colloquial and scientific texts whereas it is not used in official texts at all. The word “словно” is distributed similarly, however, it appears more in fiction rather than in publicistic texts. “Будто” and “аки” follow the same trend but they also occur in official texts. “Подобно” is seen in all the styles as well and mostly in publicistic documents. Although the word “как” is primarily used in publicistic texts, it is also represented in the official style more often than any other word. 
+
+
 
 ```{r}
 data %>%
@@ -51,6 +114,10 @@ data %>%
        # axis.ticks.x=element_blank())
 ```
 
+As we can see such words as “как” and “аки” are almost evenly distributed along the timeline. “Будто”, “подобно” and “словно” tend to be used more often after the 1800s. The word “а-ля” is not represented in the data before the second half of the 19th century and it became very popular closer to the year 2000. 
+
+
+
 ```{r}
 data %>%
   ggplot(aes(Left_context_POS, fill = Left_context_POS)) + 
@@ -60,6 +127,11 @@ data %>%
   theme(axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
 ```
+
+The bar charts shown above demonstrate that in 5 out of 6 cases the most popular part of speech to the left of the analyzed word is a noun. The word “будто” most commonly has auxiliary words in the left context. This group includes conjunctions, prepositions and particles.  
+
+
+
 
 ```{r}
 data %>%
@@ -71,9 +143,23 @@ data %>%
         axis.ticks.x=element_blank())
 ```
 
+The distribution of the parts of speech of the first word in the right context is very diverse. In case of “а-ля” there are mostly only nouns and few adjectives. The word “аки” has two almost equal groups with nouns and auxiliary words (conjunctions, prepositions, particles). As for “подобно”, it has two groups with adjectives and nouns, which are commonly used after it. Auxiliary words dominate in the right context after “будто”. In the case of “как” and “словно” there is a variety of parts speech used. In both examples we usually observe nouns, adjectives, verbs and auxiliary words. After “словно” we also have a number of participles and gerunds.   
+
+
+First of all, we are going to start with several binomial tests. Secondly, we will look at the results of the chi-squared test and the application of the linear regression model.
+
 
 ###Binomial tests
 ####Type
+
+Test 1
+
+In this test, we are going to check the probability of the words “как” and “будто” usage in 5 samples (one sample for each functional style)
+
+H0: the chosen words appear in each sample with the probability different from ⅓
+
+H1: the chosen words appear in each sample with the probability ⅓
+
 
 ```{r}
 kak_budto <- data
@@ -162,6 +248,17 @@ kak_budto <- nrow(sci[sci$Center==1,]) # number of successes
 binom.test(kak_budto, total)
 ```
 
+We can see that the null hypothesis can be rejected only for the publicistic style experiment. The tests on belles-lettres and colloquial samples have performed the results close to hypothesis 1, while the experiments on official and scientific styles have completely different (from ⅓) results.
+
+Test two
+
+We are going to test if the words “подобно”, “словно” and “аки” occur more often in belles-lettres texts than the words “а-ля”, “как” and “будто”.
+
+H0: the chosen words appear in belles-lettres texts with the probability 1/2
+
+H1: the chosen words appear in belles-lettres texts more often
+
+
 ```{r}
 podobno_slovno <- data
 podobno_slovno$Center <- gsub("будто", 0, podobno_slovno$Center)
@@ -178,6 +275,17 @@ podobno_slovno <- nrow(belles_lettres2[belles_lettres2$Center==1,]) # number of 
 
 binom.test(podobno_slovno, total)
 ```
+
+From the result of this test it is seen that the probability of success  equals 0.5299296 and p-value is 2.454e-13, which is less than the significance level of 5%. We reject the null hypothesis and can claim that hypothesis one is correct, which means that the words  “будто”, “словно” and “аки” do occur more often in belles-lettres texts. 
+
+
+Test three 
+
+Here we examine the idea that the word “а-ля” occurs in the colloquial texts more commonly than the rest of the researched words. 
+
+H0: the chosen word appears in the colloquial texts with the probability 1/6
+
+H1: the chosen word appears in the colloquial texts more often
 
 
 ```{r}
@@ -197,7 +305,19 @@ nbudto_slovno <- nrow(colloquial[colloquial$Center==1,]) # number of successes
 binom.test(nbudto_slovno, total)
 ```
 
+The probability of success is  0.1747573 and the p-value equals 1.363e-11, so we reject the null hypothesis and can say that “а-ля” is used more in the colloquial style.
+
+
 ####"Аки" before XX
+
+Test four 
+
+In the fourth test, we want to check if the word “аки” appears in the old texts before the 1900s more commonly than other words. 
+
+H0: the chosen word appears in the old texts with the probability 1/6
+
+H1: the chosen word appears in old texts more often
+
 
 ```{r}
 aki <- data
@@ -223,7 +343,22 @@ naki <- nrow(new_texts[new_texts$Right_context_POS==1,])
 binom.test(naki, total)
 ```
 
+
+The probability of success is  0.2344214 and the p-value < 2.2e-16, so we reject the null hypothesis and the test proves that “аки” is more common for old texts.
+
+
+
+
 #Right Context
+
+Test five
+In our fifth test, we try to prove whether there is a dependence between the usage of some particular part of speech after the comparative words and time period of their usage.
+
+H0: the part of speech after the comparative words appears in the texts before and after 1900 with the same probability 
+
+H1: the part of speech appear more often after the comparative words after 1900
+
+In this case, we check the usage of nouns after them before and after 1900.
 
 ####Nouns after comparative words before XX
 ```{r}
@@ -245,6 +380,13 @@ nnouns <- nrow(new_texts[new_texts$Right_context_POS==1,])
 
 binom.test(nnouns, total)
 ```
+
+The probability of noun usage before 1900 is 0.272997, while after 1900 it is 0.4. So we can conclude that nouns are more likely to be used after comparative words in XX-XXI centuries.
+
+
+Here we test the usage of auxiliary words before and after 1900.
+
+
 ####Auxiliary words after comparative words before XX
 ```{r}
 aux <- data
@@ -266,6 +408,11 @@ naux <- nrow(new_texts[new_texts$Right_context_POS==1,])
 
 binom.test(naux, total)
 ```
+
+The probability of auxiliary word usage before 1900 is 0.2670623, while after 1900 it is 0.1564246. In other words, auxiliary words occur after comparative words more often in the past. 
+
+
+The same test has been performed for adjectives
 
 ####Adjectives after comparative words before XX
 
@@ -291,8 +438,24 @@ nadj <- nrow(new_texts[new_texts$Right_context_POS==1,])
 binom.test(nadj, total)
 ```
 
+The probability of adjective usage before 1900 is 0.1721068, while after 1900 it is 0.1687151. It means that adjectives appear in both historical periods almost with the same probability. 
+
+Thus, all three tests for each word have demonstrated different results. After comparative words nouns are more likely to be used in XX-XXI centuries, auxiliary words occur more often in the past and adjectives appear in the past and in the present with similar probability.
+
+
 
 ###Left context
+
+Test six
+
+In this test, we check whether there is a dependence between the usage of some particular part of speech before the comparative words and time period of their usage.
+
+H0: the part of speech before the comparative words appears in the texts before and after 1900 with the same probability 
+
+H1: the part of speech appear more often before the comparative words after 1900
+
+In this case, we check the usage of nouns after them before and after 1900
+
 
 ####Comparative words after nouns before XX
 ```{r}
@@ -314,6 +477,12 @@ nnouns <- nrow(new_texts[new_texts$Left_context_POS==1,])
 
 binom.test(nnouns, total)
 ```
+
+The probability of noun usage before 1900 is 0.3323442, while after 1900 it is 0.4424581. So we can conclude that nouns are more likely to be used before comparative words in XX-XXI centuries.
+
+
+Here we test the usage of auxiliary words before and after 1900
+
 ####Comparative words after auxiliary words before XX
 ```{r}
 aux <- data
@@ -335,6 +504,10 @@ naux <- nrow(new_texts[new_texts$Left_context_POS==1,])
 
 binom.test(naux, total)
 ```
+
+The probability of auxiliary word usage before 1900 is 0.2121662, while after 1900 it is 0.1843575. In other words, auxiliary words occur before comparative words slightly more often in the past.
+
+The same test has been performed for adjectives
 
 ####Comparative words after adjectives before XX
 
@@ -360,8 +533,19 @@ nadj <- nrow(new_texts[new_texts$Left_context_POS==1,])
 binom.test(nadj, total)
 ```
 
+The probability of adjective usage before 1900 is 0.09347181, while after 1900 it is 0.07932961. It means that adjectives appear before the comparative words a bit more often in the past.
+
+Thus, nouns are more likely to be used before the comparative words in XX-XXI centuries, while auxiliary words and adjectives occur slightly more often in the past.
+
 
 ###Chi-squared test
+
+In this test we are going to check the dependence between 2 variables: the historical period(before XX cent./XX-XXI cent.) and the usage of a particular function word
+
+H0: the historical period and the usage of particular function words are independent variables
+
+H1: There is a dependence between them
+
 
 Comparative words and century
 
@@ -374,13 +558,18 @@ prop.table(tab)
 
 chisq.test(data$Center, data$Century)
 ```
-Comparative words and functional style
+
+P-value is less than 0.05, so we reject the null hypothesis about the independence of these two variables.
+
+We also have conducted the chi-squared test for the usage of function words and functional styles.
 ```{r}
 
 chisq.test(data$Center, data$Type)
 
 ```
-Comparative words and right context
+
+And we have checked the dependence between the usage of function words and their context.
+
 ```{r}
 
 chisq.test(data$Center, data$Left_context_POS)
@@ -393,7 +582,17 @@ chisq.test(data$Center, data$Left_context_POS)
 
 ```
 
+In all these tests p-value<0.05 and it means that all of these variable pairs are dependent. 
+
 ###Linear Regression
+
+In this experiment, using R tools we have gained the information regarding frequency of the comparative function words for each year. Then on the basis of the linear regression model, we try to predict the frequency of each word by the year. 
+
+H0: We can’t predict the frequency of each particular word by the year.
+
+H1: Knowing the year, we can guess which word is more likely to be used.
+
+
 
 ```{r}
 
@@ -438,11 +637,7 @@ fit6 <- lm(slovno ~ year, data = years_distr)
 summary(fit6)
 ```
 
-
-
-
-
-
+We reject the null hypothesis only for such words as “а-ля” and “как”. The experiments with the rest of the words( “будто”, “словно”,  “аки”, “подобно” ) have demonstrated p-value>0.05 so we should accept the null hypothesis for them.
 
 
 ```{r}
