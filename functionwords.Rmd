@@ -9,29 +9,6 @@ output:
 ---
 
 
-Предмет исследования: распределение ...   
-Материал исследования: примеры из Национального Корпуса Русского Языка.
-
-Факторы, которые рассматриваются как возможно влияющие на выбор слова (независимые переменнные):
-
-- регистр речи (письменный, устный);   
-- жанр текста (художественный, нехудожественный);   
-- часть речи слова, стоящая слева от анализируемого;  
-- часть речи слова, стоящая справа от анализируемого;   
-- время создания текста (по десятилетиям). 
-
-Нулевой гипотезой является предположение о том, что ... 
-
-
-
-В результате получено ... .  ... . Данные представлены в файле ___.csv и проиллюстрированы в графиках.
-
-Hypotheses to be tested:
-"будто", "словно", "а-ля", "аки", "подобно"
-"будто" and "словно" occur more often in bellse-lettres texts (binominal test for belles-lettres subcorpus, where "будто" is 1, and other words are 0. binominal test for belles-lettres subcorpus, where "словно" is 1, and other words are 0. )
-"как", "подобно" have even distribution in texts of all genres (just look at the data plot)
-"а-ля" tend to occur more often in the past ()
-
 ```{r}
 #install.packages("tidyverse")
 library(tidyverse)
@@ -97,21 +74,109 @@ data %>%
 
 ###Binomial tests
 ####Type
-```{r}
-budto_slovno <- data
-budto_slovno$Center <- gsub("будто", 1, budto_slovno$Center)
-budto_slovno$Center <- gsub("словно", 1, budto_slovno$Center)
-budto_slovno$Center <- gsub("аки", 1, budto_slovno$Center)
-budto_slovno$Center <- gsub("а-ля", 0, budto_slovno$Center)
-budto_slovno$Center <- gsub("как", 0, budto_slovno$Center)
-budto_slovno$Center <- gsub("подобно", 0, budto_slovno$Center)
 
-belles_lettres2 <- budto_slovno[budto_slovno$Type=="художественный",]
+```{r}
+kak_budto <- data
+kak_budto$Center <- gsub("будто", 1, kak_budto$Center)
+kak_budto$Center <- gsub("словно", 0, kak_budto$Center)
+kak_budto$Center <- gsub("аки", 0, kak_budto$Center)
+kak_budto$Center <- gsub("а-ля", 0, kak_budto$Center)
+kak_budto$Center <- gsub("как", 1, kak_budto$Center)
+kak_budto$Center <- gsub("подобно", 0, kak_budto$Center)
+
+
+belles_lettres2 <- kak_budto[kak_budto$Type=="художественный",]
 
 total <- nrow(belles_lettres2)
-nbudto_slovno <- nrow(belles_lettres2[belles_lettres2$Center==1,]) # number of successes
+kak_budto <- nrow(belles_lettres2[belles_lettres2$Center==1,]) # number of successes
 
-binom.test(nbudto_slovno, total)
+
+binom.test(kak_budto, total)
+```
+```{r}
+kak_budto <- data
+kak_budto$Center <- gsub("будто", 1, kak_budto$Center)
+kak_budto$Center <- gsub("словно", 0, kak_budto$Center)
+kak_budto$Center <- gsub("аки", 0, kak_budto$Center)
+kak_budto$Center <- gsub("а-ля", 0, kak_budto$Center)
+kak_budto$Center <- gsub("как", 1, kak_budto$Center)
+kak_budto$Center <- gsub("подобно", 0, kak_budto$Center)
+
+publ <- kak_budto[kak_budto$Type=="публицистический",]
+
+total <- nrow(publ)
+kak_budto <- nrow(publ[publ$Center==1,]) # number of successes
+
+
+binom.test(kak_budto, total)
+```
+```{r}
+kak_budto <- data
+kak_budto$Center <- gsub("будто", 1, kak_budto$Center)
+kak_budto$Center <- gsub("словно", 0, kak_budto$Center)
+kak_budto$Center <- gsub("аки", 0, kak_budto$Center)
+kak_budto$Center <- gsub("а-ля", 0, kak_budto$Center)
+kak_budto$Center <- gsub("как", 1, kak_budto$Center)
+kak_budto$Center <- gsub("подобно", 0, kak_budto$Center)
+
+coll <- kak_budto[kak_budto$Type=="разговорный",]
+
+total <- nrow(coll)
+kak_budto <- nrow(coll[coll$Center==1,]) # number of successes
+
+
+binom.test(kak_budto, total)
+```
+```{r}
+kak_budto <- data
+kak_budto$Center <- gsub("будто", 1, kak_budto$Center)
+kak_budto$Center <- gsub("словно", 0, kak_budto$Center)
+kak_budto$Center <- gsub("аки", 0, kak_budto$Center)
+kak_budto$Center <- gsub("а-ля", 0, kak_budto$Center)
+kak_budto$Center <- gsub("как", 1, kak_budto$Center)
+kak_budto$Center <- gsub("подобно", 0, kak_budto$Center)
+
+official <- kak_budto[kak_budto$Type=="деловой",]
+
+total <- nrow(official)
+kak_budto <- nrow(official[official$Center==1,]) # number of successes
+
+
+binom.test(kak_budto, total)
+```
+```{r}
+kak_budto <- data
+kak_budto$Center <- gsub("будто", 1, kak_budto$Center)
+kak_budto$Center <- gsub("словно", 0, kak_budto$Center)
+kak_budto$Center <- gsub("аки", 0, kak_budto$Center)
+kak_budto$Center <- gsub("а-ля", 0, kak_budto$Center)
+kak_budto$Center <- gsub("как", 1, kak_budto$Center)
+kak_budto$Center <- gsub("подобно", 0, kak_budto$Center)
+
+sci <- kak_budto[kak_budto$Type=="научный",]
+
+total <- nrow(sci )
+kak_budto <- nrow(sci[sci$Center==1,]) # number of successes
+
+
+binom.test(kak_budto, total)
+```
+
+```{r}
+podobno_slovno <- data
+podobno_slovno$Center <- gsub("будто", 0, podobno_slovno$Center)
+podobno_slovno$Center <- gsub("словно", 1, podobno_slovno$Center)
+podobno_slovno$Center <- gsub("аки", 1, podobno_slovno$Center)
+podobno_slovno$Center <- gsub("а-ля", 0, podobno_slovno$Center)
+podobno_slovno$Center <- gsub("как", 0, podobno_slovno$Center)
+podobno_slovno$Center <- gsub("подобно", 1, podobno_slovno$Center)
+
+belles_lettres2 <- podobno_slovno[podobno_slovno$Type=="художественный",]
+
+total <- nrow(belles_lettres2)
+podobno_slovno <- nrow(belles_lettres2[belles_lettres2$Center==1,]) # number of successes
+
+binom.test(podobno_slovno, total)
 ```
 
 
@@ -317,6 +382,7 @@ chisq.test(data$Center, data$Type)
 ```
 Comparative words and right context
 ```{r}
+
 chisq.test(data$Center, data$Left_context_POS)
 
 ```
