@@ -21,7 +21,7 @@ We have several hypotheses to be tested. Some of them are based on the idea that
 
 The other group of hypotheses is devoted to the date of the texts:
 
-1) We believe that the usage of all comparative function words in texts depends on the date of the text. We expect “аки”, “словно” and “подобно”  to appear in the texts written earlier than the XX century more often than other words. “как”, “а-ля” and “будто”  are supposed to occur more often in the XX-XXI centuries;
+1) We expect the word “аки” to appear in the texts written earlier than the XX century more often than the other words.
 
 2) There is a correlation between the historical period when the text was written and the usage of a particular part of speech after the comparative words.
 
